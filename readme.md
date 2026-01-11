@@ -57,7 +57,7 @@ Given a character backstory claim, determine if it:
 
 ## 🏗️ Architecture
 
-
+```bash
 ┌─────────────────────────────────────────────────────┐
 │         Input: Character Backstories                 │
 └────────────────────┬────────────────────────────────┘
@@ -109,7 +109,7 @@ Given a character backstory claim, determine if it:
         │ • NLI Results                │
         │ • Reasoning                  │
         └──────────────────────────────┘
-
+```
 
 ---
 
@@ -182,7 +182,7 @@ Each prediction includes:
 
 ## 📁 Project Structure
 
-
+```bash
 KDSH/
 ├── README.md                           # This file
 ├── .gitignore                          # Git ignore rules
@@ -199,7 +199,7 @@ KDSH/
 ├── predictions.csv                     # Final submission (ID, label)
 ├── test_predictions_with_evidence.csv  # Test predictions + evidence
 └── train_predictions_with_evidence.csv # Train predictions + evidence
-
+```
 
 ---
 
@@ -214,25 +214,31 @@ KDSH/
 ### Steps
 
 1. *Clone/Navigate to project directory:*
-bash
-cd /Users/adityakumarjha/Desktop/KDSH
+```bash
+git clone https://github.com/Aditya-KumarJha/KDSH.git
+```
+```bash
+cd KDSH
+```
 
 
 2. *Create virtual environment:*
-bash
+```bash
 python -m venv venv
+```
+```bash
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
+```
 
 3. *Install dependencies:*
-bash
+```bash
 pip install -r requirements.txt
-
+```
 
 4. *Verify installation:*
-bash
+```bash
 python -c "import pathway, sentence_transformers, torch; print('✓ All imports successful')"
-
+```
 
 ---
 
@@ -277,88 +283,95 @@ jupyter notebook solution.ipynb
 
 ### Stage 1: Data Loading (Cell 3)
 
-Load novels → Parse into lines
-Load train.csv → 80 examples with labels
-Load test.csv → ~20 examples (no labels)
+- Load novels → Parse into lines
+- Load train.csv → 80 examples with labels
+- Load test.csv → ~20 examples (no labels)
 
 
 ### Stage 2: Preprocessing (Cells 4-5)
 
 For each example:
+```bash
 ├─ Extract character contexts from novel
 ├─ Create full context (book + character + content)
 ├─ Get embedding of content
 ├─ Get embeddings of character contexts
 └─ Compute NLI scores
+```
 
 
 ### Stage 3: Feature Extraction (Cell 5)
 
 For each example, compute:
+```bash
 ├─ max_similarity → Max cosine similarity to character contexts
 ├─ mean_similarity → Mean cosine similarity
 ├─ context_count → Number of contexts found
 ├─ entailment → NLI entailment score
 ├─ contradiction → NLI contradiction score
 └─ neutral → NLI neutral score
-
+```
 
 *Result:* 6 numerical features per example
 
 ### Stage 4: Model Training (Cell 6)
 
-Train 5 ML models on X_train (80 examples × 6 features)
-Using y_train (80 labels: 0 or 1)
+- Train 5 ML models on X_train (80 examples × 6 features)
+- Using y_train (80 labels: 0 or 1)
 
 
 ### Stage 5: Cross-Validation (Cell 7)
 
 5-fold stratified CV on training data
+```bash
 ├─ Check Accuracy per fold
 ├─ Check F1-Score per fold
 └─ Calculate overfitting gap
-
+```
 
 ### Stage 6: Transformer Predictions (Cells 9-10)
 
 For each test example:
+```bash
 ├─ Tokenize full_context
 ├─ Pass through DeBERTa-v3-small
 └─ Get probability of class 1 (consistent)
-
+```
 
 ### Stage 7: Ensemble (Cell 11)
 
-final_score = (
-    0.40 * transformer_pred +
-    0.15 * xgb_pred +
-    0.15 * lgbm_pred +
-    0.15 * catboost_pred +
-    0.10 * rf_pred +
-    0.05 * lr_pred
+- final_score = (
+   - 0.40 * transformer_pred +
+   - 0.15 * xgb_pred +
+   - 0.15 * lgbm_pred +
+   - 0.15 * catboost_pred +
+   - 0.10 * rf_pred +
+   - 0.05 * lr_pred
 )
 
-prediction = 1 if final_score > 0.5 else 0
+- prediction = 1 if final_score > 0.5 else 0
 
 
 ### Stage 8: Evidence Retrieval (Cells 13-16)
 
 For each prediction:
+```bash
 ├─ Extract backstory claims (split by sentences)
 ├─ For each claim:
 │  ├─ Search Pathway vector store for relevant passages
 │  ├─ Get top 3 similar passages
 │  └─ Run NLI on each passage
 └─ Aggregate evidence and generate reasoning
-
+```
 
 ### Stage 9: Output (Cells 17-19)
 
 Save:
+```bash
 ├─ predictions.csv → ID, Label (submission format)
 ├─ test_predictions_with_evidence.csv → Full details
 └─ train_predictions_with_evidence.csv → Full details
-
+```
 
 ---
 
@@ -384,11 +397,10 @@ Save:
 
 *Input:* Full concatenated text
 
-"Book: <book_name>
-Character: <character_name>
-Caption: <optional_caption>
-Content: <backstory_claim>"
-
+- "Book: <book_name>
+- Character: <character_name>
+- Caption: <optional_caption>
+- Content: <backstory_claim>"
 
 *Output:* Probability of class 1 (consistent)
 
@@ -465,7 +477,6 @@ The backstory contradicts established narrative facts.
 
 Contradictions: 1
 Entailments: 0
-
 
 ---
 
@@ -561,52 +572,52 @@ id,book_name,char,caption,content,label
 ### Model Hyperparameters (Cell 6)
 python
 # XGBoost
-n_estimators=200      # Number of boosting rounds
-max_depth=5           # Tree depth
-learning_rate=0.05    # Learning rate
-eval_metric='logloss' # Loss function
+- n_estimators=200      # Number of boosting rounds
+- max_depth=5           # Tree depth
+- learning_rate=0.05    # Learning rate
+- eval_metric='logloss' # Loss function
 
 # LightGBM
-n_estimators=200
-max_depth=5
-learning_rate=0.05
-verbose=-1            # Suppress output
+- n_estimators=200
+- max_depth=5
+- learning_rate=0.05
+- verbose=-1            # Suppress output
 
 # CatBoost
-iterations=200
-depth=5
-learning_rate=0.05
-verbose=0             # No verbose output
+- iterations=200
+- depth=5
+- learning_rate=0.05
+- verbose=0             # No verbose output
 
 # Random Forest
-n_estimators=200
-max_depth=10          # Deeper than boosting models
-random_state=42
+- n_estimators=200
+- max_depth=10          # Deeper than boosting models
+- random_state=42
 
 # Logistic Regression
-max_iter=1000         # Maximum iterations
-random_state=42
+- max_iter=1000         # Maximum iterations
+- random_state=42
 
 
 ### Pathway Configuration (Cell 13)
-python
-chunk_size = 1000          # Characters per chunk
-overlap = 200              # Overlap between chunks
-top_k = 5                  # Top passages to retrieve
-nli_max_length = 512       # Max tokens for NLI input
-transformer_batch_size = 8 # Batch size for inference
+- python
+- chunk_size = 1000          # Characters per chunk
+- overlap = 200              # Overlap between chunks
+- top_k = 5                  # Top passages to retrieve
+- nli_max_length = 512       # Max tokens for NLI input
+- transformer_batch_size = 8 # Batch size for inference
 
 
 ### Ensemble Weights (Cell 11)
-python
-weights = {
-    'transformer': 0.4,
-    'xgb': 0.15,
-    'lgbm': 0.15,
-    'catboost': 0.15,
-    'rf': 0.1,
-    'lr': 0.05
-}
+- python
+- weights = {
+   - 'transformer': 0.4,
+   - 'xgb': 0.15,
+   - 'lgbm': 0.15,
+   - 'catboost': 0.15,
+   - 'rf': 0.1,
+   - 'lr': 0.05
+- }
 # Sum = 1.0 (normalized)
 
 

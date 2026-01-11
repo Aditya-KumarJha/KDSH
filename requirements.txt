@@ -10,4 +10,4 @@ catboost>=1.2.0
 tqdm>=4.66.0
 protobuf>=3.20.0
 sentencepiece>=0.1.99
-pathway>=0.13.0
+pathway>=0

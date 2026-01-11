@@ -57,7 +57,7 @@ Given a character backstory claim, determine if it:
 
 ## 🏗️ Architecture
 
-
+```bash
 ┌─────────────────────────────────────────────────────┐
 │         Input: Character Backstories                 │
 └────────────────────┬────────────────────────────────┘
@@ -109,7 +109,7 @@ Given a character backstory claim, determine if it:
         │ • NLI Results                │
         │ • Reasoning                  │
         └──────────────────────────────┘
-
+```
 
 ---
 
@@ -182,7 +182,7 @@ Each prediction includes:
 
 ## 📁 Project Structure
 
-
+```bash
 KDSH/
 ├── README.md                           # This file
 ├── .gitignore                          # Git ignore rules
@@ -199,7 +199,7 @@ KDSH/
 ├── predictions.csv                     # Final submission (ID, label)
 ├── test_predictions_with_evidence.csv  # Test predictions + evidence
 └── train_predictions_with_evidence.csv # Train predictions + evidence
-
+```
 
 ---
 
@@ -214,25 +214,31 @@ KDSH/
 ### Steps
 
 1. *Clone/Navigate to project directory:*
-bash
-cd /Users/adityakumarjha/Desktop/KDSH
+```bash
+git clone https://github.com/Aditya-KumarJha/KDSH.git
+```
+```bash
+cd KDSH
+```
 
 
 2. *Create virtual environment:*
-bash
+```bash
 python -m venv venv
+```
+```bash
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
+```
 
 3. *Install dependencies:*
-bash
+```bash
 pip install -r requirements.txt
-
+```
 
 4. *Verify installation:*
-bash
+```bash
 python -c "import pathway, sentence_transformers, torch; print('✓ All imports successful')"
-
+```
 
 ---
 

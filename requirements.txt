@@ -1,0 +1,13 @@
+pandas>=2.2.0
+numpy>=1.26.0
+torch>=2.2.0
+transformers>=4.36.0
+sentence-transformers>=2.2.0
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+lightgbm>=4.2.0
+catboost>=1.2.0
+tqdm>=4.66.0
+protobuf>=3.20.0
+sentencepiece>=0.1.99
+pathway>=0.13.0

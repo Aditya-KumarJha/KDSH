@@ -617,7 +617,7 @@ python
    - 'catboost': 0.15,
    - 'rf': 0.1,
    - 'lr': 0.05
-}
+- }
 # Sum = 1.0 (normalized)
 
 

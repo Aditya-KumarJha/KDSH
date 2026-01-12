@@ -131,15 +131,39 @@ Given a character backstory claim, determine if it:
 - Semantic search for relevant passages
 - Evidence scoring with confidence metrics
 
-### 4. *Detailed Evidence Output*
+### 4. *Intelligent Claim Classification*
+Backstory claims are automatically categorized into 5 types:
+- *EVENT*: Time, place, concrete past actions
+- *BELIEF*: Internal states, assumptions, fears
+- *TRAIT*: Persistent personality or habits
+- *WORLD_RULE*: Assumptions about how the world works
+- *RELATIONSHIP*: Ties to specific characters
+
+### 5. *Contradiction Severity Classification*
+The system distinguishes between different types of contradictions:
+- *HARD_CONTRADICTION*: Violates explicit narrative constraints (e.g., EVENT contradictions)
+- *SOFT_TENSION*: Creates narrative strain but allows character development (e.g., BELIEF contradictions)
+- *UNCONSTRAINED*: No direct evidence found in the novel
+
+### 6. *Character Absolute Constraints*
+Pre-defined narrative constraints for known characters:
+- E.g., Edmond Dantès: Cannot have traveled during imprisonment at Château d'If
+- Constraint-based retrieval for EVENT-type claims
+- Automatic hard contradiction detection
+
+### 7. *Detailed Evidence Output*
 Each prediction includes:
 - Up to 5 evidence passages with line numbers
+- Claim type classification (EVENT/BELIEF/TRAIT/WORLD_RULE/RELATIONSHIP)
+- Claim status (HARD_CONTRADICTION/SOFT_TENSION/UNCONSTRAINED)
 - NLI classification for each passage
 - Confidence scores (0.0-1.0)
-- Contradiction/entailment counts
+- Hard contradiction count
+- Soft tension count
+- Entailment count
 - Human-readable reasoning
 
-### 5. *Cross-Validation Analysis*
+### 8. *Cross-Validation Analysis*
 - 5-fold stratified cross-validation
 - Overfitting detection
 - Per-model performance metrics (Accuracy, F1-Score)
@@ -196,7 +220,8 @@ KDSH/
 │       ├── In search of the castaways.txt    # Full novel text
 │       └── The Count of Monte Cristo.txt     # Full novel text
 │
-├── predictions.csv                     # Final submission (ID, label)
+├── predictions.csv                     # Final submission (ID, label) [DEPRECATED - now results.csv]
+├── results.csv                         # Final submission (ID, label)
 ├── test_predictions_with_evidence.csv  # Test predictions + evidence
 └── train_predictions_with_evidence.csv # Train predictions + evidence
 ```
@@ -273,9 +298,9 @@ jupyter notebook solution.ipynb
    - Cell 19: Display sample results
 
 3. *Outputs generated:*
-   - predictions.csv - Simple submission format
-   - test_predictions_with_evidence.csv - Full evidence
-   - train_predictions_with_evidence.csv - Full evidence
+   - results.csv - Simple submission format (ID, label)
+   - test_predictions_with_evidence.csv - Full evidence with claim types and severity
+   - train_predictions_with_evidence.csv - Full evidence with claim types and severity
 
 ---
 
@@ -357,11 +382,15 @@ For each test example:
 For each prediction:
 ```bash
 ├─ Extract backstory claims (split by sentences)
+├─ Classify claim type (EVENT/BELIEF/TRAIT/WORLD_RULE/RELATIONSHIP)
 ├─ For each claim:
 │  ├─ Search Pathway vector store for relevant passages
-│  ├─ Get top 3 similar passages
-│  └─ Run NLI on each passage
-└─ Aggregate evidence and generate reasoning
+│  ├─ For EVENT claims: Check character absolute constraints
+│  ├─ Get top 3-5 similar passages (deduplication)
+│  ├─ Run NLI on each passage
+│  ├─ Classify contradiction severity (HARD/SOFT/UNCONSTRAINED)
+│  └─ Count hard contradictions, soft tensions, entailments
+└─ Generate final reasoning based on evidence
 ```
 
 ### Stage 9: Output (Cells 17-19)
@@ -444,38 +473,43 @@ id,label
 3. character - Character name
 4. prediction - 0 (contradict) or 1 (consistent)
 5. confidence - 0.0-1.0 probability score
-6. backstory_claims - Extracted claims (pipe-separated)
+6. backstory_claims - Extracted claims with types (pipe-separated)
 7. evidence_summary - Up to 5 evidence passages with NLI analysis
 8. reasoning - Human-readable explanation
-9. contradictions - Count of contradicting passages
-10. entailments - Count of supporting passages
+9. hard_contradictions - Count of hard contradictions found
+10. soft_tensions - Count of soft tensions found
+11. entailments - Count of supporting passages
 
 *Example Row:*
 
 ID: 95
 Book: The Count of Monte Cristo
-Character: Noirtier
-Prediction: 1 (consistent)
-Confidence: 0.563
+Character: Edmond Dantès
+Prediction: 0 (contradict)
+Confidence: 0.437
 
 Backstory Claims:
-"Learning that Villefort meant to denounce him..."
+[EVENT] During his imprisonment at the Château d'If, Edmond Dantès regularly traveled to Paris...
+[BELIEF] He believed freedom would come through political connections...
 
 Evidence:
 --- Evidence 1 ---
-Claim: [claim text]
-Passage (Lines 37239-37258): [novel text excerpt]
-NLI: contradiction (score: 0.852)
+Claim (EVENT): During his imprisonment at the Château d'If, Edmond Dantès regularly traveled to Paris...
+Claim Status: HARD_CONTRADICTION
+Passage (Lines 37239-37258): [novel text showing imprisonment without travel]
+NLI: CONTRADICTION (score: 0.952)
 
 --- Evidence 2 ---
-Claim: [claim text]
-Passage (Lines 28108-28134): [novel text excerpt]
-NLI: neutral (score: 0.905)
+Claim (BELIEF): He believed freedom would come through political connections...
+Claim Status: SOFT_TENSION
+Passage (Lines 28108-28134): [novel text about different beliefs]
+NLI: CONTRADICTION (score: 0.705)
 
-Reasoning: Found 1 contradictions vs 0 supporting evidences. 
-The backstory contradicts established narrative facts.
+Reasoning: Detected 1 hard contradictions that violate narrative constraints. 
+The backstory is inconsistent with the novel.
 
-Contradictions: 1
+Hard Contradictions: 1
+Soft Tensions: 1
 Entailments: 0
 
 ---
